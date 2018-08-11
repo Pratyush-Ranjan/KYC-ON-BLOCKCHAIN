@@ -8,5 +8,6 @@ var Users= require('../controllers/user');
 router.post('/register',Users.register);
 router.delete('/delete/:id',Users.deleteuser);
 router.post('/login',Users.login);
+router.post('/senddocs',Users.sendDocumentToBank);
 
 module.exports = router;

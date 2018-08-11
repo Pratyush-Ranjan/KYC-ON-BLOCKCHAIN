@@ -23,8 +23,9 @@ exports.register= function (req,res) {
                     var user = new Users({
                         _id: new mongoose.Types.ObjectId(),
                         email: req.body.email,
-                        password: hash
-
+                        password: hash,
+                        role : req.body.role,
+                        ethaddress : req.body.ethaddress
                     });
                     user.save(function (err, result) {
                         if (err) {
