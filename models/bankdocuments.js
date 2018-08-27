@@ -12,4 +12,3 @@ var bankdocuments=mongoose.model('bankdocuments',bankDocumentSchema);
 module.exports={
     BankDocuments:bankdocuments
 }
-// module.exports=mongoose.model('Product',productSchema);

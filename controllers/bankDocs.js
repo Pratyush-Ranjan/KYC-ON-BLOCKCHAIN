@@ -22,9 +22,9 @@ exports.getDocument= function (req,res) {
 
 
 exports.addDocument= function (req,res) {
-   // console.log(req.file);
+   
     var emaill =req.userData.email;
-  //  console.log("email"+email);
+  
     var bankid;
     users.findOne({email:emaill},function(err,bank){
         bankid=bank._id;
@@ -108,57 +108,57 @@ exports.getone= function (req,res) {
 // };
 
 
-exports.getOrder= function (req,res) {
-    Orders.find({},function (err,result) {
-        if(err){
-            res.status(500).json({
-                success:false,
-                message: 'sorry! No result avaiable'
-            });
-        }
-        else
-        {res.status(200).json({
-            success: true,
-            data:result
-        });}
-    });
-};
+// exports.getOrder= function (req,res) {
+//     Orders.find({},function (err,result) {
+//         if(err){
+//             res.status(500).json({
+//                 success:false,
+//                 message: 'sorry! No result avaiable'
+//             });
+//         }
+//         else
+//         {res.status(200).json({
+//             success: true,
+//             data:result
+//         });}
+//     });
+// };
 
 
-exports.addOrder= function (req,res) {
-    Products.findById(req.body.productId,function (err,data) {
-       if(err){
-           res.status(500).json({
-               success:false,
-               message:"sorry!!Something happened"
-           });
-       }
-       if(data)
-       {
-           var order= new Orders({
-               _id: new mongoose.Types.ObjectId(),
-               product: req.body.productId,
-               quantity:req.body.quantity
-           });
-           order.save(function (err,result) {
-               if(err){
-                   res.status(500).json({
-                       success:false,
-                       message: 'sorry! something happened, please try again'
-                   });
-               }
-               else
-               {res.status(200).json({
-                   success: true,
-                   message: "Order added"
-               });}
-           });
-       }else{
-           res.status(404).json({
-               success:false,
-               message: 'sorry! something happened, please try again'
-           });
-       }
+// exports.addOrder= function (req,res) {
+//     Products.findById(req.body.productId,function (err,data) {
+//        if(err){
+//            res.status(500).json({
+//                success:false,
+//                message:"sorry!!Something happened"
+//            });
+//        }
+//        if(data)
+//        {
+//            var order= new Orders({
+//                _id: new mongoose.Types.ObjectId(),
+//                product: req.body.productId,
+//                quantity:req.body.quantity
+//            });
+//            order.save(function (err,result) {
+//                if(err){
+//                    res.status(500).json({
+//                        success:false,
+//                        message: 'sorry! something happened, please try again'
+//                    });
+//                }
+//                else
+//                {res.status(200).json({
+//                    success: true,
+//                    message: "Order added"
+//                });}
+//            });
+//        }else{
+//            res.status(404).json({
+//                success:false,
+//                message: 'sorry! something happened, please try again'
+//            });
+//        }
 
-    });
-};
+//     });
+// };

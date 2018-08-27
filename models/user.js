@@ -15,4 +15,3 @@ var users=mongoose.model('users',userSchema);
 module.exports={
     Users:users
 }
-// module.exports=mongoose.model('Product',productSchema);
