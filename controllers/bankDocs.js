@@ -4,21 +4,36 @@ var bankDocuments=require('../models/bankdocuments').BankDocuments;
 var users=require('../models/user').Users
  
 
-exports.getDocument= function (req,res) {
-    bankDocuments.find({},function (err,result) {
-        if(err){
+exports.getDocument= async function (req,res) {
+    users.find({verified:0,role:1})
+    .then(data=>{
+        console.log(data);
+        var array=[];
+        data.forEach(element => {
+           array.push(element._id); 
+        });
+        bankDocuments.find({bank:{$in:array}})
+        .then(result=>{
+            res.status(200).json({
+                success: true,
+                data :result
+            });
+        })
+        .catch(error=>{
             res.status(500).json({
                 success:false,
                 message: 'sorry! No result avaiable'
             });
-        }
-        else
-        {   res.status(200).json({
-            success: true,
-            data :result
-        });}
+        });
+    })
+    .catch(err=>{
+        res.status(500).json({
+            success:false,
+            message: 'sorry! No result avaiable'
+        });
     });
-};
+
+}
 
 
 exports.addDocument= function (req,res) {
