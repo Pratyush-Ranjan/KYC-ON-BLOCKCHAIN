@@ -8,7 +8,8 @@ var userSchema= mongoose.Schema({
     role : {type:Number, required:true, default:2}, //0 verifier , 1 bank, 2 customer
     ethaddress : {type : String},
     bankPublicKey : {type:String},
-    verified:{type:Number,default:0}    
+    verified:{type:Number,default:0},
+    publickey:{type:String}   
 });
 
 var users=mongoose.model('users',userSchema);

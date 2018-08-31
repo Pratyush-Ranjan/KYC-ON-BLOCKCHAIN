@@ -4,6 +4,30 @@ var mongoose=require('mongoose');
 var Users=require('../models/user').Users;
 var bcrypt=require('bcrypt');
 var jwt=require('jsonwebtoken');
+var PromiseA = require('bluebird').Promise;
+var fs = PromiseA.promisifyAll(require('fs'));
+var path = require('path');
+var ursa = require('ursa');
+var mkdirpAsync = PromiseA.promisify(require('mkdirp'));
+
+function keypair(pathname) {
+    var key = ursa.generatePrivateKey(1024, 65537);
+    var privpem = key.toPrivatePem();
+    var pubpem = key.toPublicPem();
+    var privkey = path.join(pathname, 'privkey.pem');
+    var pubkey = path.join(pathname, 'pubkey.pem');
+  
+    return mkdirpAsync(pathname).then(function () {
+      return PromiseA.all([
+          
+        fs.writeFileAsync(privkey, privpem, 'ascii')
+      , fs.writeFileAsync(pubkey, pubpem, 'ascii')
+      ]);
+    }).then(function () {
+        //res.download('./keys/privkey.pem');
+      return key;
+    });
+}
 
 exports.register= function (req,res) {
     Users.find({email: req.body.email},function(err,data){
@@ -25,7 +49,9 @@ exports.register= function (req,res) {
                         email: req.body.email,
                         password: hash,
                         role : req.body.role,
-                        ethaddress : req.body.ethaddress
+                        ethaddress : req.body.ethaddress,
+                        publickey:''
+
                     });
                     user.save(function (err, result) {
                         if (err) {
@@ -34,10 +60,31 @@ exports.register= function (req,res) {
                                 message: 'sorry! something happened, please try again'
                             });
                         }else{
-                            res.status(200).json({
-                                success: true,
-                                message: 'sucessfully registered'
-                            });
+                            PromiseA.all([
+                                keypair('keys/'+result._id+'/')
+                              ]).then(function (keys) {
+                                console.log(result._id);
+                                Users.update({_id:result._id},{$set:{publickey:'keys/'+result._id+'/pubkey.pem'}},(err,User)=>{
+                                    if(User)
+                                    {
+                                        res.status(200).json({
+                                            success: true,
+                                            message: 'keys/'+result._id+'/privkey.pem'
+                                        });
+                                        
+                                    }
+                                });
+                              }).catch(err2=>{
+                                  console.log("couldnt");
+                                  user.findOneAndRemove({_id:result._id}).then(removeres=>{
+                                    res.status(500).json({
+                                        success: false,
+                                        message: 'sorry! something happened, please try again'
+                                    });
+                                  });
+                                
+                              });
+                            
                         }
                     });
                 }
@@ -45,7 +92,7 @@ exports.register= function (req,res) {
         }
     });
 
-};
+}
 
 exports.deleteuser= function (req,res) {
     var id=req.params.id;
