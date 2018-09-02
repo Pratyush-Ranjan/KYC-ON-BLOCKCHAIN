@@ -28,6 +28,12 @@ class Create extends Component {
 
         axios.post('/register', { email, password,role,ethaddress })
             .then((result) => {
+                console.log(result);
+                var file = new Blob([result.data.privpem], {type: 'text/plain'});
+                var element = document.createElement("a");
+                element.href = URL.createObjectURL(file);
+                element.download = "privatekey.txt";
+                element.click();
                 this.props.history.push("/login")
             })
             .catch(error=>{

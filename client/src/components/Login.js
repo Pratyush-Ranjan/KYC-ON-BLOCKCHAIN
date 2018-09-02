@@ -12,7 +12,6 @@ class Login extends Component {
             email: '',
             password: '',
             message: ''
-           // resfile:''
         };
     }
     onChange = (e) => {
@@ -41,10 +40,9 @@ class Login extends Component {
 
     render() {
         const { email, password, message } = this.state;
-        //console.log(resfile);
         return (
             <div class="container">
-                <a href={resfile}>Download</a>
+                
                 <form class="form-signin" onSubmit={this.onSubmit}>
                     {message !== '' &&
                     <div class="alert alert-warning alert-dismissible" role="alert">

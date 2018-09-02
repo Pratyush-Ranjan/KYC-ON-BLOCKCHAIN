@@ -14,18 +14,14 @@ function keypair(pathname) {
     var key = ursa.generatePrivateKey(1024, 65537);
     var privpem = key.toPrivatePem();
     var pubpem = key.toPublicPem();
-    var privkey = path.join(pathname, 'privkey.pem');
-    var pubkey = path.join(pathname, 'pubkey.pem');
-  
+    var pubkey = path.join(pathname, 'pubkey.pem'); // generate pem file from pubkey
+    console.log("privpem"+privpem);
     return mkdirpAsync(pathname).then(function () {
       return PromiseA.all([
-          
-        fs.writeFileAsync(privkey, privpem, 'ascii')
-      , fs.writeFileAsync(pubkey, pubpem, 'ascii')
+       fs.writeFileAsync(pubkey, pubpem, 'ascii') // write public key as pubkey.pem
       ]);
     }).then(function () {
-        //res.download('./keys/privkey.pem');
-      return key;
+      return privpem;
     });
 }
 
@@ -62,14 +58,15 @@ exports.register= function (req,res) {
                         }else{
                             PromiseA.all([
                                 keypair('keys/'+result._id+'/')
-                              ]).then(function (keys) {
+                              ]).then(function (privpem) {
                                 console.log(result._id);
                                 Users.update({_id:result._id},{$set:{publickey:'keys/'+result._id+'/pubkey.pem'}},(err,User)=>{
                                     if(User)
                                     {
                                         res.status(200).json({
                                             success: true,
-                                            message: 'keys/'+result._id+'/privkey.pem'
+                                            message: 'generated private key for download as txt',
+                                            privpem:privpem.toString('utf8')
                                         });
                                         
                                     }
