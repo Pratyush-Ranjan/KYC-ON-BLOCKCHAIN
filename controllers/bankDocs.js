@@ -2,7 +2,13 @@
 var mongoose=require('mongoose');
 var bankDocuments=require('../models/bankdocuments').BankDocuments;
 var users=require('../models/user').Users
- 
+var encryptor = require('file-encryptor');
+var PromiseA = require('bluebird').Promise;
+var fs = PromiseA.promisifyAll(require('fs'));
+const ipfsAPI = require('ipfs-api');
+//var mykey = 'My Super Secret Key';
+const ipfs = ipfsAPI('ipfs.infura.io', '5001', {protocol: 'https'});
+
 
 exports.getDocument= async function (req,res) {
     users.find({verified:0,role:1})
@@ -41,32 +47,42 @@ exports.addDocument= function (req,res) {
     var emaill =req.userData.email;
   
     var bankid;
-    users.findOne({email:emaill},function(err,bank){
+    users.findOne({email:emaill}, async  function(err,bank){
         bankid=bank._id;
         var docs='';
-        req.files.forEach(element => {
-            docs = docs + element.path + ',';
-        });
-        var document= new bankDocuments({
-            _id: new mongoose.Types.ObjectId(),
-            bank : bankid,
-            documents : docs
-        });
-        document.save(function (err,result) {
-            if(err){
-                res.status(500).json({
-                    success:false,
-                    message: 'sorry! something happened, please try again'
+       
+            var mykey=bank._id+Date.now();
+            console.log("mykey"+mykey);
+            encryptor.encryptFile(req.files[0].path, 'encrypted.dat', mykey,async function(err){
+                var uploadedfile=fs.readFileSync('encrypted.dat');
+                var testbuffer=new Buffer(uploadedfile);
+                var filehash =await ipfs.files.add(testbuffer);
+                    
+                console.log("ipfshash"+filehash[0].hash);
+                docs=docs+filehash[0].hash;
+                console.log("docs"+docs);
+                var document= new bankDocuments({
+                    _id: new mongoose.Types.ObjectId(),
+                    bank : bankid,
+                    documents : docs
                 });
-            }
-            else
-            {res.status(200).json({
-                success: true,
-                message: 'documents  added'
-            });}
-        });
+                document.save(function (err,result) {
+                    if(err){
+                        res.status(500).json({
+                            success:false,
+                            message: 'sorry! something happened, please try again'
+                        });
+                    }
+                    else
+                    {res.status(200).json({
+                        success: true,
+                        message: 'documents  added'
+                    });}
+                });
+            });
+        
     });
-};
+}
 
 
 exports.getone= function (req,res) {
