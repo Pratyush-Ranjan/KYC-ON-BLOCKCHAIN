@@ -9,7 +9,8 @@ var userSchema= mongoose.Schema({
     ethaddress : {type : String},
     bankPublicKey : {type:String},
     verified:{type:Number,default:0},
-    publickey:{type:String}   
+    publickey:{type:String},
+    document_key:{type:String}
 });
 
 var users=mongoose.model('users',userSchema);

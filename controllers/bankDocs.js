@@ -6,7 +6,8 @@ var encryptor = require('file-encryptor');
 var PromiseA = require('bluebird').Promise;
 var fs = PromiseA.promisifyAll(require('fs'));
 const ipfsAPI = require('ipfs-api');
-//var mykey = 'My Super Secret Key';
+const ursa=require('ursa');
+var crypto = require('crypto'),algorithm = 'aes-256-ctr';
 const ipfs = ipfsAPI('ipfs.infura.io', '5001', {protocol: 'https'});
 
 
@@ -46,12 +47,19 @@ exports.addDocument= function (req,res) {
    
     var emaill =req.userData.email;
   
-    var bankid;
+    var mykey=Math.random().toString(36).replace('0.', '');
+    console.log("nonecnryped mykey "+mykey);
+    var pubkey = ursa.createPublicKey(fs.readFileSync('./keys/verifier/pubkey.pem'));
+    var enc = pubkey.encrypt(mykey, 'utf8', 'base64');
+    console.log('encrypted ', enc, '\n');
+    users.update({email:emaill},{$set:{document_key:enc}},(err,user)=>{
+        console.log("USERRRRRR"+user);
+    });
     users.findOne({email:emaill}, async  function(err,bank){
-        bankid=bank._id;
+        var bankid=bank._id;
         var docs='';
        
-            var mykey=bank._id+Date.now();
+            
             console.log("mykey"+mykey);
             encryptor.encryptFile(req.files[0].path, 'encrypted.dat', mykey,async function(err){
                 var uploadedfile=fs.readFileSync('encrypted.dat');
