@@ -8,7 +8,8 @@ import registerServiceWorker from './registerServiceWorker';
 import Login from './components/Login';
 import Register from './components/Register';
 import Bank_file_upload from './components/Bank';
-import Verifier from './components/Verifier';
+import get_bank_docs from './components/getbankdocs';
+import view_bank_docs from './components/viewbankdocs';
 
 ReactDOM.render(
     <Router>
@@ -17,7 +18,8 @@ ReactDOM.render(
             <Route path='/login' component={Login} />
             <Route path='/register' component={Register} />
             <Route path='/bank' component={Bank_file_upload} />
-            <Route path='/verifier' component={Verifier} />
+            <Route path='/verifybank' component={get_bank_docs} />
+            <Route path='/viewbankdocs/:bankid' component={view_bank_docs} />
         </div>
     </Router>,
     document.getElementById('root')

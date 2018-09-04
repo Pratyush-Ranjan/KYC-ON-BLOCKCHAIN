@@ -128,7 +128,8 @@ exports.login= function (req,res) {
                if(result){
                    var token= jwt.sign({
                       email: data[0].email,
-                       userId: data[0]._id
+                       userId: data[0]._id,
+                       role:data[0].role
                    },
                        'secret',
                        {expiresIn:"1h"}
