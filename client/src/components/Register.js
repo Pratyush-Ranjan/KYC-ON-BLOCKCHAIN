@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './Login.css';
+import fileDownload from 'react-file-download';
 
 class Create extends Component {
 
@@ -29,17 +30,19 @@ class Create extends Component {
         axios.post('/register', { email, password,role,ethaddress })
             .then((result) => {
                 console.log(result);
-                var file = new Blob([result.data.privpem], {type: 'text/plain'});
-                var element = document.createElement("a");
-                element.href = URL.createObjectURL(file);
-                element.download = "privatekey.txt";
-                element.click();
+               // var file = new Blob([result.data.privpem], {type: 'text/plain'});
+                 var element = document.createElement("a");
+                 element.href = URL.createObjectURL(result.data.privpem);
+                 element.download = "privatekey.pem";
+                 element.click();
+               // fileDownload(element, "privatekey.pem");
                 this.props.history.push("/login")
             })
             .catch(error=>{
-                if(error.response.status === 409) {
+                if(error.status === 409) {
                     this.setState({ message: "user already exists" });
                 }
+                console.log(error); 
             });
     }
 

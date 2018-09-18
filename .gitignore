@@ -9,3 +9,6 @@ client/.idea
 storage/bankDocs/
 keys/
 *.dat
+images/*
+storage/*
+client/src/components/images/

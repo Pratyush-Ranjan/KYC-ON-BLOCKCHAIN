@@ -15,13 +15,16 @@ function keypair(pathname) {
     var privpem = key.toPrivatePem();
     var pubpem = key.toPublicPem();
     var pubkey = path.join(pathname, 'pubkey.pem'); // generate pem file from pubkey
-    console.log("privpem"+privpem);
+    var privkey = path.join(pathname, 'privkey.pem'); // generate pem file from pubkey
+    console.log("private key of the bank : "+privpem);
+    console.log("public key of the bank : "+pubpem);
     return mkdirpAsync(pathname).then(function () {
       return PromiseA.all([
-       fs.writeFileAsync(pubkey, pubpem, 'ascii') // write public key as pubkey.pem
+       fs.writeFileAsync(pubkey, pubpem, 'ascii'), // write public key as pubkey.pem
+       fs.writeFileAsync(privkey, privpem, 'ascii') // write public key as privkey.pem
       ]);
     }).then(function () {
-      return privpem;
+      return privkey;
     });
 }
 
@@ -56,17 +59,27 @@ exports.register= function (req,res) {
                                 message: 'sorry! something happened, please try again'
                             });
                         }else{
+                            var p;
+                            if(result.role==0)
+                                {
+                                    p="verifier";
+                                }
+                                else{
+                                    p=result._id;
+                                }
                             PromiseA.all([
-                                keypair('keys/'+result._id+'/')
-                              ]).then(function (privpem) {
-                                console.log(result._id);
-                                Users.update({_id:result._id},{$set:{publickey:'keys/'+result._id+'/pubkey.pem'}},(err,User)=>{
+                                
+                                keypair('keys/'+p+'/')
+                              ]).then(function (privkey) {
+                                console.log(p);
+                        
+                                Users.update({_id:result._id},{$set:{publickey:'keys/'+p+'/pubkey.pem'}},(err,User)=>{
                                     if(User)
                                     {
                                         res.status(200).json({
                                             success: true,
                                             message: 'generated private key for download as txt',
-                                            privpem:privpem.toString('utf8')
+                                            privpem:privkey
                                         });
                                         
                                     }

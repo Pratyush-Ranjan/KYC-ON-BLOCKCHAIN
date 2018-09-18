@@ -46,27 +46,27 @@ exports.getDocument= async function (req,res) {
 exports.addDocument= function (req,res) {
    
     var emaill =req.userData.email;
-  
+    
     var mykey=Math.random().toString(36).replace('0.', '');
-    console.log("nonecnryped mykey "+mykey);
+    console.log("nonecnryped version of the key which is used to encrypt document :  "+mykey);
     var pubkey = ursa.createPublicKey(fs.readFileSync('./keys/verifier/pubkey.pem'));
     var enc = pubkey.encrypt(mykey, 'utf8', 'base64');
-    console.log('encrypted ', enc, '\n');
+    console.log('encrypted version of the same key encrypted using public key of verifier :  ', enc, '\n');
     users.update({email:emaill},{$set:{document_key:enc}},(err,user)=>{
-        console.log("USERRRRRR"+user);
+        //console.log("USERRRRRR"+user);
     });
     users.findOne({email:emaill}, async  function(err,bank){
         var bankid=bank._id;
         var docs='';
        
             
-            console.log("mykey"+mykey);
+            //console.log("mykey"+mykey);
             encryptor.encryptFile(req.files[0].path, 'encrypted.dat', mykey,async function(err){
                 var uploadedfile=fs.readFileSync('encrypted.dat');
                 var testbuffer=new Buffer(uploadedfile);
                 var filehash =await ipfs.files.add(testbuffer);
                     
-                console.log("ipfshash"+filehash[0].hash);
+                console.log("ipfshash of the document uploaded to IPFS : "+filehash[0].hash);
                 docs=docs+filehash[0].hash;
                 console.log("docs"+docs);
                 var document= new bankDocuments({
