@@ -38,6 +38,7 @@ class Bank_file_upload extends React.Component {
       const url = '/verification';
       const formData = new FormData();
       formData.append('documents',file)
+      console.log('working');
       const config = {
           headers: {
               'content-type': 'multipart/form-data'

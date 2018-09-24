@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom';                    
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Web3 from 'web3';
@@ -18,21 +18,22 @@ class get_bank_docs extends Component {
        // this.onFormSubmit = this.onFormSubmit.bind(this)
         this.onChange = this.onChange.bind(this)
         this.getIPFSimage = this.getIPFSimage.bind(this)
+        this.verifybank = this.verifybank.bind(this)
         
     }
 
-    async componentDidMount() {
+     componentDidMount() {
         if(localStorage.getItem('jwtToken')==null)
         {
             this.props.history.push('/login');
         }
-        const account= await web3.eth.getAccounts();
-        console.log("accounts "+account[0]);
+      
         axios.defaults.headers.common['Authorization'] = "bearer "+ localStorage.getItem('jwtToken');
         console.log("token"+localStorage.getItem('jwtToken'));
+        
         axios.get('/get_banks')
         .then((result) => {
-           // console.log("result"+result.data.banks[0]._id);
+            console.log("result"+result.data.banks[0]._id);
             this.setState({ banks: result.data.banks });
         })
         .catch((error) => {
@@ -50,7 +51,7 @@ class get_bank_docs extends Component {
         const formData = new FormData();
         formData.append('privatekey',this.state.file);
         console.log(this.state.file);
-        console.log(e.target.id);
+        console.log(e.target.id+'gfdyrdyt');
         //formData.append('bank_id',e.target.id);
         
         const config = {
@@ -83,17 +84,44 @@ class get_bank_docs extends Component {
     //   }
 
     onChange(e) {
+        // console.log("accounts");
+
         console.log("beforefilestate "+e.target.files[0]);
         this.setState({file:e.target.files[0]},()=>{
             console.log("filestate "+this.state.file);
         })
         
       }
+
+
+     async verifybank(e){
+
+        
+         const s = e.target.id;
+        const account = await web3.eth.getAccounts();
+         console.log("accounts "+account);
+        await kyc.methods.addBank(s).send({
+                from:account[0],
+                gas:1000000
+            })
+            .then(result=>{
+                if(result.status==false)
+                {
+                    console.log("could not sent consent. re-try again");
+                }
+            })
+            .catch(error=>{
+                console.log("could not transact on etherum");
+            })
+
+
+    
+    }
     
     render() {
         return (
             <div class="container">
-            <h1>hi</h1>
+            <h1>h</h1>
             <input type="file" onChange={this.onChange} />
             <table>
                 <tbody>
@@ -104,6 +132,8 @@ class get_bank_docs extends Component {
                                     <td>{item.email}</td>
                                     <td>{item.ethaddress}</td>
                                     <td><button id={item._id} onClick={this.getIPFSimage}>GET IMAGE</button></td>
+                                    <td><button id={item.ethaddress} onClick={this.verifybank}>Verify Bank</button></td>
+
                                     {/* <td><button ><a href={"/viewbankdocs/"+item._id}>VERIFY</a></button></td> */}
                                 </tr>
                                 
