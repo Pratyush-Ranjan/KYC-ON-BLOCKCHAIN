@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Web3 from 'web3';
 import kyc from '../contracts/kyc';
+import logo from '../logo.png';
+import '../App.css';
 const web3 = new Web3(window.web3.currentProvider);
 
 
@@ -13,13 +15,22 @@ class bank_show_customers extends Component {
         super();
         this.state = {
             customers: [],
-            file : null
+            file : null,
+            map:[],
+            custbanks:[]
 
         };
          this.onFormSubmit = this.onFormSubmit.bind(this)
         this.onChange = this.onChange.bind(this)
+        this.logout = this.logout.bind(this)
         // this.getIPFSimage = this.getIPFSimage.bind(this)
 
+    }
+
+    logout = () => {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('role');
+        window.location.reload();
     }
 
     componentDidMount() {
@@ -32,8 +43,12 @@ class bank_show_customers extends Component {
         console.log("token" + localStorage.getItem('jwtToken'));
         axios.get('/get_pending_customer')
             .then((result) => {
-                console.log("result" + result.data.data);
-                this.setState({ customers: result.data.data });
+                console.log(result.data.data);
+                console.log(result.data.map);
+                console.log(result.data.custbanks);
+                //console.log(result.data.data[0].banks);
+                this.setState({ customers: result.data.data , custbanks: result.data.custbanks, map: result.data.map });
+
             })
             .catch((error) => {
                 console.log("reaced here");
@@ -123,14 +138,53 @@ class bank_show_customers extends Component {
         return  axios.post(url, formData,config)
       }
 
+      async requestdocument(e){
+        const account= await web3.eth.getAccounts();
+        var customer_account=e.target.id;
+        var original_bank= e.target.data;
+        await kyc.methods.requestTransfer(original_bank,customer_account)
+            .send({
+                from:account[0],
+                gas:1000000
+            })
+            .then(async result=>{
+                if(result.status==false)
+                {
+                    console.log("could not sent request transfer. re-try again");
+                }
+                else if(result.status==true)
+                {
+                    console.log("requested");
+                }
+            });
+      }
+
 
 
     render() {
         return (
-            <div class="container">
-                <h1>h</h1>
-                <table>
+            <div className="customer">
+                <header>
+                  <nav>
+                        <div >
+                          <img class="logo" src={logo}/>
+                        </div>
+                        <div class="menu">
+                              <ul>
+                                    <li><Link class="active" to="/">Home</Link></li>
+                                    <li onClick={this.logout}>Logout</li>
+                              </ul>
+                        </div>
+            
+                
+                <table id="customers" align="center">
                     <tbody>
+                    <tr>
+                    <th>EMAIL</th>
+                    <th>ETH ADDRESS</th>
+                    <th>SUBMIT / UPLOAD </th>
+                    
+                    </tr>
                         {
                             this.state.customers.map((item, key) => {
                                
@@ -138,18 +192,34 @@ class bank_show_customers extends Component {
                                     <tr key={key}>
                                         <td>{item.email}</td>
                                         <td>{item.ethaddress}</td>
-                                       <td><form id={item.ethaddress} onSubmit={this.onFormSubmit}>
-                                         <input id= {item._id} type="file" onChange={this.onChange} />
-                                         <button type="submit">Upload</button>
-                                        </form></td> 
+                                        <td><form id={item.ethaddress} onSubmit={this.onFormSubmit}>
+                                                <input id= {item._id} type="file" onChange={this.onChange} />
+                                                <button type="submit">Upload</button>
+                                                </form></td>
+                                        {/* { this.state.custbanks[this.state.map[item._id]].banks.length==0 && 
+                                            
+                                            <td><form id={item.ethaddress} onSubmit={this.onFormSubmit}>
+                                                <input id= {item._id} type="file" onChange={this.onChange} />
+                                                <button type="submit">Upload</button>
+                                                </form></td>
+                                        }
+                                        { this.state.custbanks[this.state.map[item._id]].banks.length!=0 && 
+                                            
+                                            <td>
+                                                <button id={item.ethaddress} data={item._id} onClick = {this.requestdocument}>get packet</button>
+                                                </td>
+                                        } */}
+                                        
                                      
                                     </tr>
 
                                 )
                             })
                         }
-                    </tbody>
-                </table>
+                  </tbody>
+            </table>
+               </nav>
+            </header>
             </div>
         );
     }

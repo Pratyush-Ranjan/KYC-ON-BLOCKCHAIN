@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Web3 from 'web3';
 import kyc from '../contracts/kyc';
+import logo from '../logo.png';
+import '../App.css';
 const web3 = new Web3(window.web3.currentProvider);
 
 
@@ -18,6 +20,7 @@ class give_consent extends Component {
        // this.onFormSubmit = this.onFormSubmit.bind(this)
         this.onChange = this.onChange.bind(this)
         // this.getIPFSimage = this.getIPFSimage.bind(this)
+        this.logout = this.logout.bind(this)
         
     }
 
@@ -30,9 +33,9 @@ class give_consent extends Component {
 
         axios.defaults.headers.common['Authorization'] = "bearer "+ localStorage.getItem('jwtToken');
         console.log("token"+localStorage.getItem('jwtToken'));
-        axios.get('/get_banks_customer')
+        axios.get('/get_banks_customer/')
         .then((result) => {
-            console.log("result"+result.data.banks[0]._id);
+           // console.log("result"+result.data.banks[0]._id);
             this.setState({ banks: result.data.banks });
         })
         .catch((error) => {
@@ -90,6 +93,12 @@ class give_consent extends Component {
         
       }
 
+      logout = () => {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('role');
+        window.location.reload();
+    }
+
    async giveconsent(e)
       { 
         var bankid= e.target.id;
@@ -142,11 +151,29 @@ class give_consent extends Component {
     
     render() {
         return (
-            <div class="container">
-            <h1>hi</h1>
-            {/* <input type="file" onChange={this.onChange} /> */}
-            <table>
+        
+            <div className="customer">
+            <header>
+                  <nav>
+                        <div>
+                          <img class="logo" src={logo}/>
+                        </div>
+                        <div class="menu">
+                              <ul>
+                                    <li><Link class="active" to="/">Home</Link></li>
+                                    <li><Link class="active" to="/customer/getbanks">New Bank</Link></li>
+                                    <li><Link class="active" to="/customer/revokeconsent">Connected Banks</Link></li>
+                                    <li onClick={this.logout}>Logout</li>
+                              </ul>
+                        </div>
+            <table id="customers" align="center">
                 <tbody>
+                <tr>
+                    <th>EMAIL</th>
+                    <th>ETH ADDRESS</th>
+                    <th>SUBMIT</th>
+                    
+                    </tr>
                     {
                         this.state.banks.map((item,key)=>{
                             console.log('hasdad');
@@ -163,6 +190,8 @@ class give_consent extends Component {
                     }
                 </tbody>
             </table>
+               </nav>
+            </header>
             </div>
         );
     }

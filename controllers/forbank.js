@@ -15,7 +15,7 @@ const ipfsAPI = require('ipfs-api');
 const ursa=require('ursa');
 var crypto = require('crypto'),algorithm = 'aes-256-ctr';
 const ipfs = ipfsAPI('ipfs.infura.io', '5001', {protocol: 'https'});
-
+var banklist = require('../models/bank_list_for_customer').Bank_list_for_customer;
 
 exports.putpending= async (req,res)=>{
     let bankid = req.body.bankid;
@@ -47,7 +47,7 @@ exports.putpending= async (req,res)=>{
  
 }
 
-exports.getpending=(req,res)=>{
+exports.getpending= async (req,res)=>{
 
     // let bankid = req.params.bankid;
     console.log(req.userData);
@@ -55,19 +55,51 @@ exports.getpending=(req,res)=>{
     console.log(bankid);
 
 
-    customerlist.find({_id:bankid}).then(data=>{
+    customerlist.find({_id:bankid}).then(async data=>{
         console.log(req.userData);
         var array = data[0].pendingcustomers;
-        Users.find({"_id":{"$in":array}}).then(data =>{
-            res.status(200).json({
-                data
-            });
-        })
+        var data = await Users.find({"_id":{"$in":array}});
+        console.log(data);
+        res.status(200).json({
 
-    }); 
+            data
+        });
+      
+    //     var custarray = new Array();
+    //     data.forEach(element => {
+    //         custarray.push(element._id);
+    //     });
+      
+    //     var custbanks = await banklist.find({"_id":{"$in":custarray}});
+        
+    //     // var res = data.map(x => Object.assign(x, custbanks.find(y => y._id == x._id)));
+    //     // console.log(res);
+    //     // const result = data.map(val => {
+    //     //     return Object.assign({}, val, custbanks.filter(v => v._id === val._id));
+    //     // });
+    //     // console.log(result);
+    //     var map=new Object();
+    //     let p=0;
+    //     custbanks.forEach(element => {
+    //         map[element._id]=p++;
+    //     });
+    //     console.log(map);
+    //     var finaldata=new Array();
+    //     var obj = new Object();
+    //     data.forEach(element => {
+    //         obj=element;
+    //         obj['banks']=custbanks[map[element._id]].banks[0];
+    //         console.log(obj['banks']);
+    //         finaldata.push(obj);
+    //     });
+    //     res.status(200).json({
+    //         data,
+    //         custbanks, map
+    //     });
+    // }); 
+    })
 
-
-};
+}
 
 exports.addDocument= async function (req,res) {
    

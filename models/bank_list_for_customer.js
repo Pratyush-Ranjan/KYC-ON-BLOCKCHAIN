@@ -12,3 +12,6 @@ var Bank_list_for_customer=mongoose.model('bank_list_for_customer',bank_list_for
 module.exports={
     Bank_list_for_customer:Bank_list_for_customer
 }
+
+
+

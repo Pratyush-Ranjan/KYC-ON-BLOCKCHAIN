@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Web3 from 'web3';
 import kyc from '../contracts/kyc';
+import logo from '../logo.png';
+import '../App.css';
 const web3=new Web3(window.web3.currentProvider);
 
 
@@ -19,10 +21,18 @@ class get_bank_docs extends Component {
         this.onChange = this.onChange.bind(this)
         this.getIPFSimage = this.getIPFSimage.bind(this)
         this.verifybank = this.verifybank.bind(this)
+        this.logout = this.logout.bind(this)
         
     }
 
-     componentDidMount() {
+    logout = () => {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('role');
+        window.location.reload();
+    }
+
+
+     async componentDidMount() {
         if(localStorage.getItem('jwtToken')==null)
         {
             this.props.history.push('/login');
@@ -30,7 +40,9 @@ class get_bank_docs extends Component {
       
         axios.defaults.headers.common['Authorization'] = "bearer "+ localStorage.getItem('jwtToken');
         console.log("token"+localStorage.getItem('jwtToken'));
-        
+        // const account = await web3.eth.getAccounts();
+        // console.log(account);
+       
         axios.get('/get_banks')
         .then((result) => {
             console.log("result"+result.data.banks[0]._id);
@@ -120,11 +132,30 @@ class get_bank_docs extends Component {
     
     render() {
         return (
-            <div class="container">
-            <h1>h</h1>
+            <div className="verifier">
+            <header>
+                  <nav>
+                        <div >
+                          <img class="logo" src={logo}/>
+                        </div>
+                        <div class="menu">
+                              <ul>
+                                    <li><Link class="active" to="/">Home</Link></li>
+                                    <li onClick={this.logout}>Logout</li>
+                              </ul>
+                        </div>
+            </nav>
+            </header>
             <input type="file" onChange={this.onChange} />
-            <table>
+            <table id="customers" align="center">
+            
                 <tbody>
+                <tr>
+                    <th>BANK NAME</th>
+                    <th>IPFS ADDRESS</th>
+                    <th>get image</th>
+                    <th>verify</th>
+                    </tr>
                     {
                         this.state.banks.map((item,key)=>{
                             return (

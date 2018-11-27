@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import logo from '../logo.png';
+import '../App.css';
 
 class Login extends Component {
 
@@ -11,6 +13,13 @@ class Login extends Component {
             banks : [],
             
         };
+        this.logout = this.logout.bind(this)
+    }
+
+    logout = () => {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('role');
+        window.location.reload();
     }
 
     componentDidMount() {
@@ -59,7 +68,18 @@ class Login extends Component {
     render() {
         // const { email, password, message } = this.state;
         return (
-            <div class="container">
+            <div className="verifier">
+            <header>
+                  <nav>
+                        <div >
+                          <img class="logo" src={logo}/>
+                        </div>
+                        <div class="menu">
+                              <ul>
+                                    <li><Link class="active" to="/">Home</Link></li>
+                                    <li onClick={this.logout}>Logout</li>
+                              </ul>
+                        </div>
                 <table>
                     <tr>
                     <th>BANK NAME</th>
@@ -74,6 +94,8 @@ class Login extends Component {
                     <input type="password" class="form-control" placeholder="Password" name="password" value={password} onChange={this.onChange} required/>
                     <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button> */}
                     
+                    </nav>
+            </header>
                 
             </div>
         );

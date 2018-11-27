@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Web3 from 'web3';
 import kyc from '../contracts/kyc';
+import logo from '../logo.png';
+import '../App.css';
 const web3 = new Web3(window.web3.currentProvider);
 
 
@@ -18,8 +20,17 @@ class revoke_consent extends Component {
        // this.onFormSubmit = this.onFormSubmit.bind(this)
        this.revokeconsent = this.revokeconsent.bind(this)
         // this.getIPFSimage = this.getIPFSimage.bind(this)
+        this.logout = this.logout.bind(this)
         
     }
+
+
+    logout = () => {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('role');
+        window.location.reload();
+    }
+
 
  componentDidMount() {
         console.log('working');
@@ -83,11 +94,28 @@ class revoke_consent extends Component {
     
     render() {
         return (
-            <div class="container">
-            <h1>hi</h1>
-            {/* <input type="file" onChange={this.onChange} /> */}
-            <table>
+            <div className="customer">
+            <header>
+                  <nav>
+                        <div>
+                          <img class="logo" src={logo}/>
+                        </div>
+                        <div class="menu">
+                              <ul>
+                                    <li><Link class="active" to="/">Home</Link></li>
+                                    <li><Link class="active" to="/customer/getbanks">New Bank</Link></li>
+                                    <li><Link class="active" to="/customer/revokeconsent">Connected Banks</Link></li>
+                                    <li onClick={this.logout}>Logout</li>
+                              </ul>
+                        </div>
+            <table id="customers" align="center">
                 <tbody>
+                <tr>
+                    <th>EMAIL</th>
+                    <th>ETH ADDRESS</th>
+                    <th>REVOKE CONSENT</th>
+                    
+                    </tr>
                     {
                         this.state.banks.map((item,key)=>{
                             console.log('hasdad');
@@ -102,8 +130,10 @@ class revoke_consent extends Component {
                             )
                         })
                     }
-                </tbody>
+                 </tbody>
             </table>
+               </nav>
+            </header>
             </div>
         );
     }

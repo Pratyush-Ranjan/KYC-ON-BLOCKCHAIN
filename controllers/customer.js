@@ -51,12 +51,24 @@ exports.addBank= async (req,res)=>{
     });
  
 }
-exports.getbanks = (req,res)=>{
-    Users.find({ role:1},(err,banks)=>{
-        res.status(200).json({
-            banks
-        });
-    });}
+exports.getbanks = async (req,res)=>{
+    console.log(req.userData.userId);
+    var usedbanks = await banklist.find({_id:req.userData.userId});
+    console.log(usedbanks);
+    var allbanks=[];
+    if(usedbanks.length!=0)
+    {
+        allbanks=await Users.find({ role:1,_id:{$nin:usedbanks[0].banks}});
+        
+    }
+    else{
+        allbanks=await Users.find({ role:1});
+    }
+    console.log(allbanks);
+    res.status(200).json({
+        banks:allbanks
+    });
+}
 
  exports.getbankEtherAddress= (req,res)=>{
         

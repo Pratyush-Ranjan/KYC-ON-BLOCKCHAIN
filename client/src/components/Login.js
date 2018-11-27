@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './Login.css';
+import Register from "./Register";
+import Routes from "../index.js"
+import { BrowserRouter as Router, Route} from "react-router-dom";
 
 class Login extends Component {
 
@@ -11,7 +14,8 @@ class Login extends Component {
         this.state = {
             email: '',
             password: '',
-            message: ''
+            message: '',
+            role:''
         };
     }
     onChange = (e) => {
@@ -20,6 +24,46 @@ class Login extends Component {
         this.setState(state);
     }
 
+    
+    componentDidMount() {
+        axios.defaults.headers.common['Authorization'] = localStorage.getItem('jwtToken');
+        console.log("token"+localStorage.getItem('jwtToken'));
+        // if(localStorage.getItem('jwtToken')==null)
+        // {
+        //     this.props.history.push('/login');
+        // }
+        // else{
+        if(localStorage.getItem('jwtToken')!=null)
+        {
+            if(localStorage.getItem('role')!=null)
+            {
+                this.setState({role:localStorage.getItem('role')});
+            }
+            if(this.state.role==1)
+            {
+                this.props.history.push('/bank');
+            }
+            else if(this.state.role==2)
+            {
+                this.props.history.push('/customer/getbanks');
+            }
+            else if(this.state.role==0)
+            {
+                this.props.history.push('/verifybank');
+            }
+        }
+        // axios.get('/')
+        //     .then(res => {
+        //         this.setState({message:"logged in"});
+        //     })
+        //     .catch((error) => {
+        //         if(error.response.status === 401) {
+        //             this.props.history.push("/login");
+        //         }
+        //     });
+    }
+
+
     onSubmit = (e) => {
         e.preventDefault();
 
@@ -27,9 +71,12 @@ class Login extends Component {
 
         axios.post('/login', { email, password })
             .then((result) => {
+                console.log("role : "+result.data.role);
                 localStorage.setItem('jwtToken', result.data.token);
-                this.setState({ message: result.data.success });
-                this.props.history.push({pathname:'/',state:{message:result.data.success}});
+                localStorage.setItem('role', result.data.role);
+                this.setState({ role : result.data.role , message: result.data.success });
+               
+                this.props.history.push({pathname:'/',state:{message:result.data.success,role:result.data.role}});
             })
             .catch((error) => {
                 if(error.response.status === 401) {
@@ -41,25 +88,36 @@ class Login extends Component {
     render() {
         const { email, password, message } = this.state;
         return (
-            <div class="container">
+            // <div class="container">
                 
-                <form class="form-signin" onSubmit={this.onSubmit}>
-                    {message !== '' &&
-                    <div class="alert alert-warning alert-dismissible" role="alert">
-                        { message }
-                    </div>
-                    }
-                    <h2 class="form-signin-heading">Please sign in</h2>
-                    <label for="inputEmail" class="sr-only">Email address</label>
-                    <input type="email" class="form-control" placeholder="Email address" name="email" value={email} onChange={this.onChange} required/>
-                    <label for="inputPassword" class="sr-only">Password</label>
-                    <input type="password" class="form-control" placeholder="Password" name="password" value={password} onChange={this.onChange} required/>
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
-                    <p>
-                        Not a member? <Link to="/register"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Register here</Link>
-                    </p>
+            //     <form class="form-signin" onSubmit={this.onSubmit}>
+            //         {message !== '' &&
+            //         <div class="alert alert-warning alert-dismissible" role="alert">
+            //             { message }
+            //         </div>
+            //         }
+            //         <h2 class="form-signin-heading">Please sign in</h2>
+            //         <label for="inputEmail" class="sr-only">Email address</label>
+            //         <input type="email" class="form-control" placeholder="Email address" name="email" value={email} onChange={this.onChange} required/>
+            //         <label for="inputPassword" class="sr-only">Password</label>
+            //         <input type="password" class="form-control" placeholder="Password" name="password" value={password} onChange={this.onChange} required/>
+            //         <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+            //         <p>
+            //             Not a member? <Link to="/register"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Register here</Link>
+            //         </p>
+            //     </form>
+            // </div>
+
+            <div class="login-page">
+              <div class="form">
+                <form class="login-form" onSubmit={this.onSubmit}>
+                  <input type="email" placeholder="email" name="email" value={email} onChange={this.onChange} required/>
+                  <input type="password" placeholder="password"name="password" value={password} onChange={this.onChange} required/>
+                  <button>login</button>
+                  <p class="message">Not registered? <Link to="/register">Register</Link></p>
                 </form>
-            </div>
+              </div>
+        </div>
         );
     }
 }

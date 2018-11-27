@@ -19,10 +19,10 @@ ReactDOM.render(
     <Router>
         <div>
             <Route exact path='/' component={App} />
-            <Route path='/login' component={Login} />
-            <Route path='/register' component={Register} />
-            <Route path='/bank' component={Bank_file_upload} />
-            <Route path='/verifybank' component={get_bank_docs} />
+            <Route exact path='/login' component={Login} />
+            <Route exact path='/register' component={Register} />
+            <Route exact path='/bank' component={Bank_file_upload} />
+            <Route exact path='/verifybank' component={get_bank_docs} />
             <Route path='/viewbankdocs/:bankid' component={view_bank_docs} />
             <Route path='/customer/getbanks' component={give_consent} />
             <Route path='/banks/showcustomers' component={bank_show_customers} />

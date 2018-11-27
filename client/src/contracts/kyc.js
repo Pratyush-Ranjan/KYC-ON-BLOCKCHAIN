@@ -1,7 +1,7 @@
 //import web3 from '../web333';
 import Web3 from 'web3';
 const web3=new Web3(window.web3.currentProvider);
-const address='0xA4D193235aCaC374F8512486c8A569F6856A22e0';
+const address='0xA826901d484d396679084Beba5CD4336B363F10b';
 //console.log("web3kyc"+web3.eth.getAccounts());
 
 const abi= [

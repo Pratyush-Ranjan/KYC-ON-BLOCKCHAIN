@@ -24,7 +24,7 @@ function keypair(pathname) {
        fs.writeFileAsync(privkey, privpem, 'ascii') // write public key as privkey.pem
       ]);
     }).then(function () {
-      return privkey;
+      return privpem;
     });
 }
 
@@ -70,7 +70,7 @@ exports.register= function (req,res) {
                             PromiseA.all([
                                 
                                 keypair('keys/'+p+'/')
-                              ]).then(function (privkey) {
+                              ]).then(function (privpem) {
                                 console.log(p);
                         
                                 Users.update({_id:result._id},{$set:{publickey:'keys/'+p+'/pubkey.pem'}},(err,User)=>{
@@ -79,7 +79,7 @@ exports.register= function (req,res) {
                                         res.status(200).json({
                                             success: true,
                                             message: 'generated private key for download as txt',
-                                            privpem:privkey
+                                            privpem: privpem.toString('utf8')
                                         });
                                         
                                     }
@@ -139,6 +139,7 @@ exports.login= function (req,res) {
                    });
                }
                if(result){
+                   console.log("role : "+data[0].role);
                    var token= jwt.sign({
                       email: data[0].email,
                        userId: data[0]._id,
@@ -149,7 +150,8 @@ exports.login= function (req,res) {
                        );
                    return res.status(200).json({
                        success: 'successfully logged in',
-                       token: token
+                       token: token,
+                        role : data[0].role
                    });
                }else {
                    return res.status(401).json({
