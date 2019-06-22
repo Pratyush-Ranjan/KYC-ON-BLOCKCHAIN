@@ -6,7 +6,7 @@ contract kyc {
     struct customer {
         uint lastUsedBank;
         mapping (address => uint) bankStatus;
-        mapping(string => string) Documents; // symmetric key encryption of documents ipfs newhash
+        mapping(string => string) Documents;
         mapping (address => string) key; // the key which encrypts the ipfs hash, is encrypted with the public key of the bank. so banks can decrypt this key and using it, it can also decrypt the ipfs hash.
     }
     
